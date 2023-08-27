@@ -19,12 +19,13 @@
 RF24 radio(PIN_RF24_CE, PIN_RF24_CSN);
 
 
-byte rf24_tx[6] = "EXWLL";    // Address used when transmitting data.
+byte rf24_tx[6] = "RAPI";    // Address used when transmitting data.
+byte rf24_rx[6] = "EXWLL";    // Address used when receiving data
 byte payload[32];             // Payload bytes. Used both for transmitting and receiving
 
 unsigned long last_reading;                // Milliseconds since last measurement was read.
 unsigned long ms_between_reads = 2000;    // 10000 ms = 10 seconds
-
+int count = 0;
 void setup() {
   
   // Initialize serial connection.
@@ -47,9 +48,14 @@ void setup() {
   radio.setDataRate(NRF24_DATA_RATE);          
   radio.setChannel(NRF24_CHANNEL);
   radio.setCRCLength(NRF24_CRC_LENGTH);
-  radio.setPayloadSize(NRF24_PAYLOAD_SIZE);
-  radio.openWritingPipe(rf24_tx);  
-  radio.stopListening();
+  // radio.setPayloadSize(NRF24_PAYLOAD_SIZE);
+  radio.enableAckPayload();
+  radio.enableDynamicPayloads();
+  // radio.openWritingPipe(rf24_tx);  
+  radio.openReadingPipe(1, rf24_rx);
+  
+  // radio.enableAckPayload();
+  radio.startListening();
   
   // Show debug information for NRF24 tranceiver.
   radio.printDetails();
@@ -57,45 +63,26 @@ void setup() {
   // Take the current timestamp. This means that the next (first) measurement will be read and
   // transmitted in "ms_between_reads" milliseconds.
   last_reading = 0;
+  Serial.print("Finished setup. Listening...");
 }
 
 void loop() {
-
-  if (millis() - last_reading > ms_between_reads) {
-    // Read sensor values every "ms_between_read" milliseconds.
-  
-    // Read the humidity and temperature.
-    float t, h;
-    h = 120.0;
-    t = 20.0;
-    
-    // Report the temperature and humidity.    
-    Serial.print("Sensor values: temperature="); Serial.print(t); 
-    Serial.print(", humidity="); Serial.println(h);
-
-    // Stop listening on the radio (we can't both listen and send).
-    radio.stopListening();
-
-    // Send the data ...
-    // send_reading(PROTOCOL, t, h);
-    int offset = 0;  
-    Serial.println("Preparing payload.");
-    memcpy(payload + offset, (byte *)(PROTOCOL), sizeof(PROTOCOL)); offset += sizeof(PROTOCOL); 
-    memcpy(payload + offset, (byte *)(&t), sizeof(t)); offset += sizeof(t);
-    memcpy(payload + offset, (byte *)(&h), sizeof(h)); offset += sizeof(h);
-    Serial.print("Bytes packed: "); Serial.println(offset);
-
-    if (radio.write(payload, offset)) {
-      Serial.print("Payload sent successfully. Retries="); Serial.println(radio.getARC());
+  uint8_t pipe;
+  if (radio.available(&pipe)) {              // is there a payload? get the pipe number that recieved it
+    uint8_t bytes = radio.getPayloadSize();  // get the size of the payload
+    radio.read(&payload, bytes);             // fetch payload from FIFO
+    Serial.print("Received ");
+    Serial.print(bytes);  // print the size of the payload
+    Serial.print(" bytes on pipe ");
+    Serial.print(pipe);  // print the pipe number
+    Serial.print(": ");
+    for (int i = 0; i < bytes; i ++) {
+      Serial.print(payload[i]);
+      Serial.print(", ");
     }
-    else {
-      Serial.print("Failed to send payload. Retries="); Serial.println(radio.getARC());
-    }   
-
-    // Start listening again.
-    radio.startListening();
-
-    // Register that we have read the temperature and humidity.
-    last_reading = millis();
+    Serial.println("\n");
+    count++;
+    Serial.print(count);
+    // Serial.println(payload);  // print the payload's value
   }
 }
