@@ -18,6 +18,14 @@
 // Cretate NRF24L01 radio.
 RF24 radio(PIN_RF24_CE, PIN_RF24_CSN);
 
+struct DataPacket {
+    // Define your struct members here
+    uint8_t starting_number;
+    uint8_t rgb_list[3];
+    uint8_t g;
+    uint8_t b;
+    // ...
+};
 
 byte rf24_tx[6] = "RAPI";    // Address used when transmitting data.
 byte rf24_rx[6] = "EXWLL";    // Address used when receiving data
@@ -41,17 +49,23 @@ void setup() {
     Serial.println(F("radio hardware not responding!!"));
     while (1) {} // hold program in infinite loop to prevent subsequent errors
   }
-  radio.enableDynamicPayloads();
-  radio.setAutoAck(true);
+  // radio.setAutoAck(true);
   radio.setPALevel(NRF24_PA_LEVEL);
-  radio.setRetries(NRF24_RETRY_DELAY, NRF24_RETRY_COUNT);    
+  // radio.setRetries(NRF24_RETRY_DELAY, NRF24_RETRY_COUNT);    
   radio.setDataRate(NRF24_DATA_RATE);          
   radio.setChannel(NRF24_CHANNEL);
   radio.setCRCLength(NRF24_CRC_LENGTH);
+  
+  
   // radio.setPayloadSize(NRF24_PAYLOAD_SIZE);
   radio.enableAckPayload();
-  radio.enableDynamicPayloads();
-  // radio.openWritingPipe(rf24_tx);  
+  // radio.enableDynamicPayloads();
+  
+  
+  // If sending data enable this
+  // radio.openWritingPipe(rf24_tx);
+
+  // We are reading data so just open a reading pipe  
   radio.openReadingPipe(1, rf24_rx);
   
   // radio.enableAckPayload();
@@ -69,20 +83,33 @@ void setup() {
 void loop() {
   uint8_t pipe;
   if (radio.available(&pipe)) {              // is there a payload? get the pipe number that recieved it
+    
+    // uint8_t bytes = radio.getPayloadSize();  // get the size of the payload
+    // // Data is available, read it into a buffer
+    // char dataBuffer[sizeof(bytes)];
+    // radio.read(dataBuffer, sizeof(bytes));
+
+    // // Parse the received data
+    // YourStruct receivedData;
+    // memcpy(&receivedData, dataBuffer, sizeof(bytes));
+    // Serial.println(receivedData.humidity);
+    // Serial.println(receivedData.temperature);
+    
     uint8_t bytes = radio.getPayloadSize();  // get the size of the payload
     radio.read(&payload, bytes);             // fetch payload from FIFO
-    Serial.print("Received ");
-    Serial.print(bytes);  // print the size of the payload
-    Serial.print(" bytes on pipe ");
-    Serial.print(pipe);  // print the pipe number
-    Serial.print(": ");
+    DataPacket receivedData;
+    memcpy(&receivedData, payload, 3);
+    Serial.print("Recieved Bytes | ");
+    Serial.print("Starting Number: "); Serial.println(receivedData.starting_number);
+    Serial.print("r: "); Serial.print(receivedData.rgb_list[0]);
+    Serial.print(" g: "); Serial.print(receivedData.rgb_list[1]);
+    Serial.print(" b: "); Serial.println(receivedData.rgb_list[2]);
+
     for (int i = 0; i < bytes; i ++) {
       Serial.print(payload[i]);
       Serial.print(", ");
     }
-    Serial.println("\n");
-    count++;
-    Serial.print(count);
+
     // Serial.println(payload);  // print the payload's value
   }
 }
