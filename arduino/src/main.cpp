@@ -1,6 +1,10 @@
 #include <receiver.h>
 #include <led_driver.h>
 
+struct BrightnessControl {
+  uint8_t current_value = 0; 
+}
+
 void setup() {
   // Initialize serial connection.
   // Having serial on causes signal dropouts

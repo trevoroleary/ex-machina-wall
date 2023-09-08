@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "wall-emulator"
+version = "0.1.0"
+description = ""
+authors = ["Trevor O'Leary <git@trevoroleary.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pygame = "^2.5.1"
+numpy = "^1.25.2"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
