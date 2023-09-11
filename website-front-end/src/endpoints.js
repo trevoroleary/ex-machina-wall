@@ -5,7 +5,7 @@ export function send_post(body, timeOfLastSend) {
         method: "POST",
         body: body,
         headers: {
-          "Authorization": `Bearer ${process.env.NTFY_TOKEN}`
+          "Authorization": `Bearer tk_632ejha524dlfcgx7dnqnxb5in4sx`
         }
         })
         // .then(response => response.json())
