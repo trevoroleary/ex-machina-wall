@@ -23,7 +23,7 @@ class ImageEffect(Effect):
         self.n_frames = None
         self.image_is_animated = False
         self.frame_time = 0.1
-        self.brightness = 1
+        self.brightness = 100
         pass
     
     def set_frame_time(self, command: str):
@@ -33,15 +33,16 @@ class ImageEffect(Effect):
             print(f"Frame time set {self.frame_time}")
         except Exception as e:
             print(e)
-            pass
+            self.frame_time = 0.1
 
     def set_brightness(self, command: str):
         try:
             brightness = int(command.split("-")[1])
-            self.brightness = brightness/100
+            self.brightness = brightness
             print(f"Set Image Brightness {brightness}")
         except Exception as e:
             print(e)
+            self.brightness = 100
             pass
 
     def set_image(self, command: str):
@@ -90,7 +91,7 @@ class ImageEffect(Effect):
             # frame.save(Path(self._TEMP_STORAGE, "converted.png"))
         else:
             frame = self.current_image.resize((WIDTH, HEIGHT))
-        image_array = (np.array(frame) * self.brightness).astype(int)
+        image_array = np.array(frame) * (self.brightness/100)
         frame = Frame(pixel_array=image_array)
         return frame
 

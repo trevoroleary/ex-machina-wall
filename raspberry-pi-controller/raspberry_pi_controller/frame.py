@@ -28,7 +28,7 @@ class Frames:
                 sum_frame = frame.pixel_array
             else:
                 sum_frame = sum_frame + frame.pixel_array
-        sum_frame = np.clip(sum_frame, 0, 255)
+        sum_frame = np.clip((sum_frame).astype(int), 0, 255)
         return self._get_string_data(numpy_pixels=sum_frame)
 
     def _get_string_data(self, numpy_pixels: np.array) -> list: 

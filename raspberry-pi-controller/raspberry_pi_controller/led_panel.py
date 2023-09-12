@@ -5,6 +5,7 @@ from raspberry_pi_controller.constants import MAPPING, WIDTH, HEIGHT
 from raspberry_pi_controller.image_handling.image_handler import ImageHandler
 from raspberry_pi_controller.effects.image_effect import ImageEffect
 from raspberry_pi_controller.effects.two_color_random_effect import TwoColorRandom
+from raspberry_pi_controller.effects.audio_effect import AudioEffect
 from raspberry_pi_controller.ntfy_listener import NTFYListener
 from raspberry_pi_controller.frame import Frames
 from PIL import Image
@@ -21,10 +22,11 @@ class Panel:
         self.image_handler = ImageHandler()
         self.effects_list = [
             ImageEffect(),
-            TwoColorRandom()
+            TwoColorRandom(),
+            AudioEffect()
         ]
         self.accepted_commands = {
-            "SET_ARDUINO_RAMP_RATE": self.set_arduino_ramp_rate
+            "SET_ARDUINO_PGAIN": self.set_arduino_p_gain
         }
         self.arduino_ramp_rate = 10
 
@@ -67,10 +69,15 @@ class Panel:
                 if accepted_command in command:
                     self.accepted_commands[accepted_command](command)
 
-    def set_arduino_ramp_rate(self, command: str):
-        ramp_rate = int(command.split("-")[1])
-        self.arduino_ramp_rate = ramp_rate
-        print(f"Ramp Rate Set {ramp_rate}")
+    def set_arduino_p_gain(self, command: str):
+        try:
+            ramp_rate = int(command.split("-")[1])
+            self.arduino_ramp_rate = ramp_rate
+            print(f"Ramp Rate Set {ramp_rate}")
+        except Exception as e:
+            print(e)
+            self.arduino_ramp_rate = 20
+
 
     def run(self):
         # self.effects_list[0].set_image("0-https://i.gifer.com/embedded/download/2QeW.gif")

@@ -30,7 +30,7 @@ class LEDPacket:
 
 class Transmitter:
     RADIO_CHIP_SELECT = 25
-    RADIO_CHANNEL = 100
+    RADIO_CHANNEL = 0
     RADIO_PAYLOAD = RF24_PAYLOAD.DYNAMIC
     RADIO_DATA_RATE = RF24_DATA_RATE.RATE_250KBPS
     RADIO_PA = RF24_PA.HIGH
@@ -65,13 +65,13 @@ class Transmitter:
         self.radio.open_writing_pipe(self.RADIO_TX_ADDRESS)
         
         # Display the content of NRF24L01 device registers.
-        self.radio.show_registers()
+        self.radio.show_registers()    
         pass
 
     def send_packet(self, led_packet: LEDPacket):
         # Send the payload to the address specified above.
         payload = led_packet.get_payload()
-        self.radio.reset_packages_lost()
+        # self.radio.reset_packages_lost()
         self.radio.send(payload)
         try:
             self.radio.wait_until_sent()
@@ -80,13 +80,12 @@ class Transmitter:
             print("Timeout waiting for transmission to complete.")
             time.sleep(10)
             return
-
-        if self.radio.get_packages_lost() == 0:
-            # print(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
-            pass
-        else:
-            print(f"Error: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
-            pass
+        # if self.radio.get_retries() == 0:
+        #     # print(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
+        #     pass
+        # else:
+        #     print(f"Error: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
+        #     pass
 
     def power_down(self):
         self.pi_gpios.stop()
@@ -99,6 +98,3 @@ def rand_int(base_color: int):
     if value > 255:
         value = 255
     return value
-
-
-
