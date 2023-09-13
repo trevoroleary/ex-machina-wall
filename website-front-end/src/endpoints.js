@@ -1,5 +1,6 @@
 // math.js
 export function send_post(body, timeOfLastSend) {
+    console.log(process.env.NTFY_TOKEN);
     if (Date.now() - timeOfLastSend > 100){
         fetch('https://ntfy.trevoroleary.com/x',{
         method: "POST",
