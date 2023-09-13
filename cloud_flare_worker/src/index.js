@@ -10,25 +10,13 @@
 
 export default {
 	async fetch(request, env, ctx) {
-		if (Date.now() - timeOfLastSend > 100){
-			fetch('https://ntfy.trevoroleary.com/x',{
+		await fetch('https://ntfy.trevoroleary.com/x',{
 			method: "POST",
-			body: body,
+			body: request.body,
 			headers: {
-			"Authorization": `Bearer tk_632ejha524dlfcgx7dnqnxb5in4sx`
+				"Authorization": `Bearer ${env.NTFY_TOKEN}`
 			}
-			})
-			// .then(response => response.json())
-			// .then(data => {
-			//   console.log(data); // Handle the response data here
-			// })
-			.catch(error => {
-				console.error('Error:', error);
-			});
-			return Date.now()
-		}
-		return timeOfLastSend
-
-		return new Response('Hello World!');
+		})
+		return new Response(true)
 	},
 };
