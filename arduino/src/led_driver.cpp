@@ -4,6 +4,8 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 Pixel_S allPixels[NUMPIXELS];
 
+float RAMP_GAIN = 0.2;
+
 void setupPixels(){
     pixels.begin();
 };
@@ -20,10 +22,14 @@ void setPixelTargets(DataPacket &datapacket){
             uint8_t b = datapacket.rgb_list[iter+2];
             iter+=3;
             setPixelTarget(&allPixels[i], r, g, b);
-            Serial.print("Setting pixel target: r"); 
-            Serial.print(r); Serial.print(" g"); Serial.print(g); Serial.print(" b"); Serial.println(b);
+            // Serial.print("Setting pixel target: r"); 
+            // Serial.print(r); Serial.print(" g"); Serial.print(g); Serial.print(" b"); Serial.println(b);
         }
     }
+};
+
+void setRampGain(int new_gain){
+    RAMP_GAIN = float(new_gain)/100;
 };
 
 void setPixelTarget(Pixel_S *pixel, uint8_t r_new, uint8_t g_new, uint8_t b_new){
@@ -43,21 +49,15 @@ void updatePixelColors(){
 };
 
 void iterPixel(Pixel_S *pixel){
-    if (pixel->r < pixel->r_target){
-        pixel->r++;
-    } else if (pixel->r > pixel->r_target){
-        pixel->r--;
-    }
-
-    if (pixel->g < pixel->g_target){
-        pixel->g++;
-    } else if (pixel->g > pixel->g_target){
-        pixel->g--;
-    }
+    float ramp_rate = RAMP_GAIN;
+    // if r > r_target then r_error will be positive, there for we need to subtract it
+    // if r < r_target then r_error will be negative, therefor we still subtract it
+    float r_error = pixel->r - pixel->r_target;
+    pixel->r = int(float(pixel->r) - ((float(r_error)*ramp_rate) + 0.5));
     
-    if (pixel->b < pixel->b_target){
-        pixel->b++;
-    } else if (pixel->b > pixel->g_target){
-        pixel->b--;
-    }
+    float g_error = pixel->g - pixel->g_target;
+    pixel->g = int(float(pixel->g) - ((float(g_error)*ramp_rate) + 0.5));
+
+    float b_error = pixel->b - pixel->b_target;
+    pixel->b = int(float(pixel->b) - ((float(b_error)*ramp_rate) + 0.5));
 }

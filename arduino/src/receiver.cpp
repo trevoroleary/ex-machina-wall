@@ -10,12 +10,12 @@ void setupReceiver() {
     delay(1000);
     
     // Show that program is starting.
-    Serial.println("\n -- Ex Machina Wall --");
+    // Serial.println("\n -- Ex Machina Wall --");
 
     // Configure the NRF24 tranceiver.
-    Serial.println("Configuring NRF24 ...");
+    // Serial.println("Configuring NRF24 ...");
     if (!radio.begin()) {
-        Serial.println("radio hardware not responding!!");
+        // Serial.println("radio hardware not responding!!");
         while (1) {} // hold program in infinite loop to prevent subsequent errors
     }
     radio.setAutoAck(true);
@@ -33,7 +33,7 @@ void setupReceiver() {
     radio.openReadingPipe(1, rf24_rx);
     radio.startListening();  
     radio.printDetails();
-    Serial.println("Configuration complete! Listening...");
+    // Serial.println("Configuration complete! Listening...");
 }
 
 bool receiveData(DataPacket &receivedData) {

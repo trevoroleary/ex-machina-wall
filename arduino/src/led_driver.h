@@ -22,6 +22,7 @@ struct Pixel_S {
 void setupPixels();
 void setPixelTarget(Pixel_S *pixel, uint8_t r_new, uint8_t g_new, uint8_t b_new);
 void setPixelTargets(DataPacket &dataPacket);
+void setRampGain(int new_gain);
 void updatePixelColors();
 void iterPixel(Pixel_S *pixel);
 

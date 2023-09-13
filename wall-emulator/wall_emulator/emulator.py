@@ -41,7 +41,7 @@ class WallEmulator:
             self.v.x_spacing_adjust = self.spacing_slider.amount
             self.v.circle_radius_adjust = self.spacing_slider.amount/2.3
             # Update the window
-            self.canvas.fill(pygame.Color('black'))
+            self.canvas.fill(pygame.Color('grey'))
 
             # self.canvas.blit(surface2, (120, 120))
             for _object in self._object:
