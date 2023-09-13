@@ -1,5 +1,3 @@
-import * as process from 'node:process';
-
 // math.js
 export function send_post(body, timeOfLastSend) {
     if (Date.now() - timeOfLastSend > 100){
