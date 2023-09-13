@@ -1,3 +1,5 @@
+import * as process from 'node:process';
+
 // math.js
 export function send_post(body, timeOfLastSend) {
     if (Date.now() - timeOfLastSend > 100){
@@ -8,10 +10,10 @@ export function send_post(body, timeOfLastSend) {
           "Authorization": `Bearer ${process.env.NTFY_TOKEN}`
         }
         })
-        // .then(response => response.json())
-        // .then(data => {
-        //   console.log(data); // Handle the response data here
-        // })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data); // Handle the response data here
+        })
         .catch(error => {
             console.error('Error:', error);
         });
