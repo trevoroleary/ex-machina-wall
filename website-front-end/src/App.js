@@ -103,7 +103,7 @@ function App() {
           <div className="flex flex-row">
             <div className="flex-1">
               <TextField 
-                id="outlined-basic" label="GIT/Image Link" variant="outlined" onKeyDown={handleImageLinkChanged}
+                id="outlined-basic" label="GIF/Image Link" variant="outlined" onKeyDown={handleImageLinkChanged}
               />
               <p className='pt-3'>GIF Frame Time</p>
               <Slider
