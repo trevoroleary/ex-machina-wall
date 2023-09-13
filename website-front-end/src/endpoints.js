@@ -1,25 +1,18 @@
 // math.js
 export function send_post(body, timeOfLastSend) {
-    if (Date.now() - timeOfLastSend > 100){
-        fetch('https://ntfy.trevoroleary.com/x',{
+  if (Date.now() - timeOfLastSend > 100){
+      // fetch('https://ex.trevoroleary.com/sendpost',{
+      //   method: "POST",
+      //   body: body,
+      // })
+      fetch('https://ntfy.trevoroleary.com/x',{
         method: "POST",
         body: body,
         headers: {
-          "Authorization": `Bearer tk_632ejha524dlfcgx7dnqnxb5in4sx`
+            "Authorization": `Bearer tk_632ejha524dlfcgx7dnqnxb5in4sx`
         }
-        })
-        // .then(response => response.json())
-        // .then(data => {
-        //   console.log(data); // Handle the response data here
-        // })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-        return Date.now()
-    }
-    return timeOfLastSend
+      })
+      return Date.now()
   }
-  
-  export function subtract(a, b) {
-    return a - b;
-  }
+  return timeOfLastSend
+}
