@@ -1,12 +1,12 @@
 // math.js
 export function send_post(body, timeOfLastSend) {
-    console.log(process.env.NTFY_TOKEN);
+    console.log(import.meta.env.NTFY_TOKEN);
     if (Date.now() - timeOfLastSend > 100){
         fetch('https://ntfy.trevoroleary.com/x',{
         method: "POST",
         body: body,
         headers: {
-          "Authorization": `Bearer ${process.env.NTFY_TOKEN}`
+          "Authorization": `Bearer ${import.meta.env.NTFY_TOKEN}`
         }
         })
         .then(response => response.json())
