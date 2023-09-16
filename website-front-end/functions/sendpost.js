@@ -17,6 +17,8 @@ export function onRequest(context) {
                 "Authorization": `Bearer ${context.env.NTFY_TOKEN}`
             }
         })
-    }
-    return new Response(false);
+        return new Response(true);
+    } else {
+        return new Response(false);
+    }  
 };
