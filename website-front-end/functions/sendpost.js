@@ -9,8 +9,6 @@
  */
 
 export function onRequest(context) {    
-    console.log(context.request.headers.get("origin"));
-    console.log(context.request.headers.get("origin") === "https://ex.trevoroleary.com");
     if (context.request.headers.get("origin") === "https://ex.trevoroleary.com") {
         fetch('https://ntfy.trevoroleary.com/x',{
             method: "POST",
