@@ -48,6 +48,10 @@ class Panel:
             for accepted_command in self.accepted_commands:
                 if accepted_command in command:
                     self.accepted_commands[accepted_command](command)
+            
+            for accepted_command in self.audio_effect.accepted_commands:
+                if accepted_command in command:
+                    self.audio_effect.accepted_commands[accepted_command](command)
 
     def set_arduino_p_gain(self, command: str):
         """

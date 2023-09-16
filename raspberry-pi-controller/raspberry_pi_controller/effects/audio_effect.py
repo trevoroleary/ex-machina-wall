@@ -13,7 +13,11 @@ class AudioEffect:
 
     def __init__(self):
         self.logger = logging.getLogger("AudioEffect")
-        self.accepted_commands = {}
+        self.accepted_commands = {
+            "SET_SECONDARY_COLOR": self.set_secondary_color,
+            "SET_SECONDARY_BRIGHTNESS": self.set_secondary_brightness
+
+        }
         self.np_frame = np.array([[(0, 0, 0) for _ in range(WIDTH)] for _ in range(HEIGHT)])
         
         self.circle_radii = list()
@@ -25,6 +29,29 @@ class AudioEffect:
         self.react_level = 11
         self.target_bps = 125/60
         self.threshold_adjust_gain = 0.0003
+        self.secondary_brightness = 100
+        self.secondary_color = (100, 0, 0)
+
+    def set_secondary_color(self, command: str):
+        try:
+            split_command = command.split('-')
+            r = int(split_command[1])
+            g = int(split_command[2])
+            b = int(split_command[3])
+            self.secondary_color = (r, g, b)
+            print(f"Secondary Color Set: {self.secondary_color}")
+        except Exception as e:
+            print(e)
+            self.secondary_color = (0, 0, 0)
+
+    def set_secondary_brightness(self, command: str):
+        try:
+            split_command = command.split("-")
+            self.secondary_brightness = int(split_command[1])
+            print(f"Audio React Brightness Set: {self.secondary_brightness}")
+        except Exception as e:
+            print(e)
+            self.primary_brightness = 100
 
     def deal_with_dynamic_threshold(self):
 
@@ -121,8 +148,6 @@ class AudioEffect:
         # self.logger.debug(f"Duration {end_time-start_time:.4f}s")
         return Frame(self.np_frame)
 
-
-
     def get_frame_adjust(self, current_frame: np.array) -> Frame:
         """
         This is the standard get frame, it just adds a fixed color, which can be set by secondary color
@@ -177,6 +202,10 @@ class AudioEffect:
         pop_list.sort(reverse=True)
         for i in pop_list:
             self.circle_radii.pop(i)
+
+        # If the reacting is off don't finish the rest of the function
+        if self.secondary_brightness < 50:
+            return Frame(current_frame)
 
         # Start drawing the circles
         y_offset = 6
