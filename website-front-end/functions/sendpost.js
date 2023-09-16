@@ -9,9 +9,6 @@
  */
 
 export function onRequest(context) {
-    console.log(context);
-    console.log(context.request);
-    console.log(context.headers);
     // if (context.request.headers.origin === "https://ex.trevoroleary.com"){
     fetch('https://ntfy.trevoroleary.com/x',{
         method: "POST",
@@ -21,5 +18,7 @@ export function onRequest(context) {
         }
     })
     // }
+    // console.log(context);
+    console.log(context.request);
     return new Response()
 };
