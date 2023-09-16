@@ -1,7 +1,7 @@
 from pyaudio import PyAudio, paInt16
 import numpy as np
 import wave
-from threading import Thread, Lock
+from threading import Thread
 from time import sleep, perf_counter
 
 
@@ -14,10 +14,9 @@ class AudioListener:
     HIGH_THRESH_MAX = 0.7e6
     LOW_THRESH_MAX = 0.05e6
 
-    MOVING_WINDOW_SIZE = 4
+    MOVING_WINDOW_SIZE = 2
 
-    def __init__(self, transmit_lock: Lock):
-        self.transmit_lock = transmit_lock
+    def __init__(self):
         self.py_audio = PyAudio()
         self.current_index = 0
         self.moving_window = [0] * self.MOVING_WINDOW_SIZE
@@ -37,7 +36,6 @@ class AudioListener:
     def _thread(self):
         while self.running:
             start_time = perf_counter()
-            # with self.transmit_lock:
             fft = self.get_fft_data()
             sense_range = fft[1:10]
             self.moving_window[self.current_index] = sense_range.max()
@@ -61,7 +59,7 @@ class AudioListener:
         indata = npArrayData*self.BLACKMAN_WINDOW
 
         fft_data=np.abs(np.fft.rfft(indata))
-        return (fft_data).astype(int)
+        return np.log(fft_data).astype(int)
     
 
 def main():

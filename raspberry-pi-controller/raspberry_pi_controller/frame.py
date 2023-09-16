@@ -5,9 +5,9 @@ from typing import List
 
 class Frame:
     def __init__(self, pixel_array: np.array):
-        self.pixel_array = pixel_array
+        self.pixel_array = np.clip((pixel_array).astype(int), 0, 255)
 
-    def _get_string_data(self) -> list: 
+    def get_string_data(self) -> list: 
         pixels = [(0, 0, 0) for _ in range(NUM_PIXELS)]
         for y in range(HEIGHT):
             for x in range(WIDTH):
@@ -20,23 +20,17 @@ class Frame:
 class Frames:
     def __init__(self, frames: List[Frame]):
         self.frames = frames
+        self.sum_frame = Frame(pixel_array=self.get_sum_frame())
     
-    def get_string_data(self) -> list:
+    def get_sum_frame(self) -> np.array:
         sum_frame = None
         for frame in self.frames:
             if sum_frame is None:
                 sum_frame = frame.pixel_array
             else:
                 sum_frame = sum_frame + frame.pixel_array
-        sum_frame = np.clip((sum_frame).astype(int), 0, 255)
-        return self._get_string_data(numpy_pixels=sum_frame)
+        return sum_frame
+        # return np.clip((sum_frame).astype(int), 0, 255)
 
-    def _get_string_data(self, numpy_pixels: np.array) -> list: 
-        pixels = [(0, 0, 0) for _ in range(NUM_PIXELS)]
-        for y in range(HEIGHT):
-            for x in range(WIDTH):
-                if MAPPING[y][x] is not None:
-                    pixel = numpy_pixels[y, x]
-                    pixel_number = MAPPING[y][x]
-                    pixels[pixel_number] = pixel[:3]
-        return pixels
+    def get_string_data(self) -> list:
+        return self.sum_frame._get_string_data()

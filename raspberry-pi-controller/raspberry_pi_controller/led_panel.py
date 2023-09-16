@@ -1,111 +1,97 @@
 
-PANEL_ORDER = list(range(73))
 from raspberry_pi_controller.transmitter import LEDPacket, Transmitter
-from raspberry_pi_controller.constants import MAPPING, WIDTH, HEIGHT
 from raspberry_pi_controller.image_handling.image_handler import ImageHandler
-from raspberry_pi_controller.effects.image_effect import ImageEffect
-from raspberry_pi_controller.effects.two_color_random_effect import TwoColorRandom
-from raspberry_pi_controller.effects.audio_effect import AudioEffect
+from raspberry_pi_controller.effects import AudioEffect, TwoColorRandom, ImageEffect
 from raspberry_pi_controller.ntfy_listener import NTFYListener
-from raspberry_pi_controller.frame import Frames
-from PIL import Image
-import numpy as np
+from raspberry_pi_controller.frame import Frames, Frame
+
 from time import sleep, perf_counter
-from threading import Lock
+import logging
 
 class Panel:
     NUM_PIXELS = 73
     def __init__(self):
+        self.logger = logging.getLogger("Panel")
         self.transmitter = Transmitter()
-        self.transmit_lock = Lock()
         self.ntfy_listener = NTFYListener()
         self.ntfy_listener.start_thread()
         self.image_handler = ImageHandler()
         self.effects_list = [
             ImageEffect(),
             TwoColorRandom(),
-            AudioEffect(transmit_lock=self.transmit_lock)
+            # AudioEffect()
         ]
+        self.audio_effect = AudioEffect()
         self.accepted_commands = {
             "SET_ARDUINO_PGAIN": self.set_arduino_p_gain
         }
         self.arduino_ramp_rate = 10
 
-    def set_image(self, image_name: str = "Sample.png", frame: int = None):
-        pixels = [(0, 0, 0) for _ in range(73)]
-        # Convert the resized image to a NumPy array
-        image_array = self.image_handler.open_saved_image(image_name, frame=frame)
-        # Iterate through the pixels and print RGB values
-        for y in range(HEIGHT):
-            for x in range(WIDTH):
-                if MAPPING[y][x] is not None:
-                    pixel = image_array[y, x]
-                    pixel_number = MAPPING[y][x]
-                    pixels[pixel_number] = pixel[:3]
-                # r, g, b = pixel[:3]  # Extract the RGB values
-                # print(f"Pixel at ({x}, {y}): R={r}, G={g}, B={b}")
-        self.write(pixels)
-
-    def set_single_pixel(self, pixel_id: int, color_setpoint = tuple) -> list:
-        pixels = list()
-        for i in range(73):
-            color = color_setpoint if i == pixel_id else (0, 0, 0)
-            pixels.append(color)
-        print(pixels)
-        self.write(pixels)
-        return pixels
-    
-    def set_color(self, color: tuple):
-        pixels = [color for i in range(self.NUM_PIXELS)]
-        self.write(color_list=pixels)
-
     def handle_commands(self):
+        """
+        Get the commands out of the NTFY listener and pass them on to the effects that need them
+        """
+        # Get commands out of ntfy listener
         commands = self.ntfy_listener.get_queue()
+
+        # iterate through the commands
         for command in commands:
+
+            # Iterate through each effect we have and check if they listen to that command
             for effect in self.effects_list:
                 for accepted_command in effect.accepted_commands:
                     if accepted_command in command:
+                        # If an effect listens to one of those commands pass it on in the relevant function
                         effect.accepted_commands[accepted_command](command)
+            
+            # Check if any of the commands are for this panel directly, rather than the effects
             for accepted_command in self.accepted_commands:
                 if accepted_command in command:
                     self.accepted_commands[accepted_command](command)
 
     def set_arduino_p_gain(self, command: str):
+        """
+        This is a command handler
+        In each message there is a gain param for how quickly the arduino should reach the target color
+        Parse the command and se
+        """
         try:
             ramp_rate = int(command.split("-")[1])
             self.arduino_ramp_rate = ramp_rate
-            print(f"Ramp Rate Set {ramp_rate}")
+            self.logger.info(f"Ramp rate Updated to: {ramp_rate}")
         except Exception as e:
-            print(e)
+            self.logger.error(f"Failed to parse Arduino P Gain Command. ErrorL '{e}'")
+            self.logger.error(f"'{command}' was not a valid command")
+            self.logger.debug(f"Setting Arduino P Gain to default value of 20")
             self.arduino_ramp_rate = 20
 
-
     def run(self):
-        # self.effects_list[0].set_image("0-https://i.gifer.com/embedded/download/2QeW.gif")
         while True:
             start_time = perf_counter()
             self.handle_commands()
             frames = Frames(frames=[effect.get_frame() for effect in self.effects_list])
-            string_data = frames.get_string_data()
+            
+            # Add the Audio Modifier
+            frame = self.audio_effect.get_frame_adjust(current_frame=frames.sum_frame.pixel_array)
+            string_data = frame.get_string_data()
             end_time = perf_counter()
-            # print(f"Frame Time: {end_time - start_time:.4f}s")
+            self.logger.debug(f"Frame Time: {end_time - start_time:.4f}s")
             self.write(string_data)
             sleep(0.01)
                 
     def write(self, color_list: list):
-        with self.transmit_lock:
-            base_list = [(0, 0, 0) for i in range(10)]
-            for i in range(8):
-                index = i*10
-                for i in range(10):
-                    if index+i < len(color_list):
-                        base_list[i] = color_list[index+i]
+        base_list = [(0, 0, 0) for i in range(10)]
+        for i in range(8):
+            index = i*10
+            for i in range(10):
+                if index+i < len(color_list):
+                    base_list[i] = color_list[index+i]
 
-                packet = LEDPacket(index, self.arduino_ramp_rate, base_list)
-                self.transmitter.send_packet(packet)
+            packet = LEDPacket(index, self.arduino_ramp_rate, base_list)
+            self.transmitter.send_packet(packet)
     
     def power_down(self):
-        print("Attempting to power down")
+        self.logger.info("Attempting to power down")
         self.transmitter.power_down()
-        print("Transmitter powered down")
+        self.logger.info("Transmitter powered down")
         self.ntfy_listener.stop_thread()

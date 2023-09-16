@@ -17,5 +17,3 @@ class Effect:
     def get_frame(self) -> Frame:
         raise NotImplementedError
     
-    def set_effect_gain(self, gain: float):
-        self.gain = gain

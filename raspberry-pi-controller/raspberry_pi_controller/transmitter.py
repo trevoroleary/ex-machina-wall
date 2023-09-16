@@ -7,10 +7,13 @@ import traceback
 from random import normalvariate, randint
 import pigpio
 from nrf24 import *
+import os
+import logging
 
 
 class LEDPacket:
     def __init__(self, starting_number: int, ramp_rate: int, led_rgbs: list):
+        self.logger = logging.getLogger("LEDPacket")
         self.starting_number = starting_number
         self.ramp_rate = ramp_rate
         self.led_rgbs = led_rgbs
@@ -41,12 +44,14 @@ class Transmitter:
     PIGPIO_PORT = 8888
 
     def __init__(self):
+        self.logger = logging.getLogger("Transmitter")
         self.pi_gpios = pigpio.pi(
             self.PIGPIO_HOSTNAME, 
             self.PIGPIO_PORT
             )
         if not self.pi_gpios.connected:
-            print("Not connected to Raspberry Pi ... goodbye.")
+            self.logger.error("Not connected to Raspberry Pi ... goodbye.")
+            sys.exit()
         
         # Create NRF24 object.
         # PLEASE NOTE: if PA level is set to MIN, its because test sender/receivers are often 
