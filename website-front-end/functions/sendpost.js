@@ -9,7 +9,6 @@
  */
 
 export function onRequest(context) {
-    // if (context.request.headers.origin === "https://ex.trevoroleary.com"){
     fetch('https://ntfy.trevoroleary.com/x',{
         method: "POST",
         body: context.request.body,
@@ -17,8 +16,5 @@ export function onRequest(context) {
             "Authorization": `Bearer ${context.env.NTFY_TOKEN}`
         }
     })
-    // }
-    // console.log(context);
-    console.log(context.request);
-    return new Response()
+    return new Response("HELLO!")
 };
