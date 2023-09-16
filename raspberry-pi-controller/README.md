@@ -17,3 +17,9 @@ If you get a 'no handle available' run
 ```bash
 sudo killall pigpiod
 ```
+
+
+for installing pyaudio
+```bash
+sudo apt-get install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev
+```

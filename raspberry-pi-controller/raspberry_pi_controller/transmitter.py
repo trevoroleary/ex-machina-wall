@@ -80,12 +80,12 @@ class Transmitter:
             print("Timeout waiting for transmission to complete.")
             time.sleep(10)
             return
-        # if self.radio.get_retries() == 0:
-        #     # print(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
-        #     pass
-        # else:
-        #     print(f"Error: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
-        #     pass
+        if self.radio.get_retries() == 0:
+            # print(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
+            pass
+        else:
+            # print(f"Error: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
+            pass
 
     def power_down(self):
         self.pi_gpios.stop()

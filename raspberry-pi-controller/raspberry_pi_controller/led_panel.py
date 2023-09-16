@@ -11,19 +11,20 @@ from raspberry_pi_controller.frame import Frames
 from PIL import Image
 import numpy as np
 from time import sleep, perf_counter
-
+from threading import Lock
 
 class Panel:
     NUM_PIXELS = 73
     def __init__(self):
         self.transmitter = Transmitter()
+        self.transmit_lock = Lock()
         self.ntfy_listener = NTFYListener()
         self.ntfy_listener.start_thread()
         self.image_handler = ImageHandler()
         self.effects_list = [
             ImageEffect(),
             TwoColorRandom(),
-            AudioEffect()
+            AudioEffect(transmit_lock=self.transmit_lock)
         ]
         self.accepted_commands = {
             "SET_ARDUINO_PGAIN": self.set_arduino_p_gain
@@ -92,15 +93,16 @@ class Panel:
             sleep(0.01)
                 
     def write(self, color_list: list):
-        base_list = [(0, 0, 0) for i in range(10)]
-        for i in range(8):
-            index = i*10
-            for i in range(10):
-                if index+i < len(color_list):
-                    base_list[i] = color_list[index+i]
+        with self.transmit_lock:
+            base_list = [(0, 0, 0) for i in range(10)]
+            for i in range(8):
+                index = i*10
+                for i in range(10):
+                    if index+i < len(color_list):
+                        base_list[i] = color_list[index+i]
 
-            packet = LEDPacket(index, self.arduino_ramp_rate, base_list)
-            self.transmitter.send_packet(packet)
+                packet = LEDPacket(index, self.arduino_ramp_rate, base_list)
+                self.transmitter.send_packet(packet)
     
     def power_down(self):
         print("Attempting to power down")
