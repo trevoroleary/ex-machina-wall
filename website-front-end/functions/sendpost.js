@@ -9,13 +9,14 @@
  */
 
 export function onRequest(context) {
-    console.log(context);
-    fetch('https://ntfy.trevoroleary.com/x',{
-        method: "POST",
-        body: context.request.body,
-        headers: {
-            "Authorization": `Bearer ${context.env.NTFY_TOKEN}`
-        }
-    })
+    if (context.request.headers.origin === "https://ex.trevoroleary.com"){
+        fetch('https://ntfy.trevoroleary.com/x',{
+            method: "POST",
+            body: context.request.body,
+            headers: {
+                "Authorization": `Bearer ${context.env.NTFY_TOKEN}`
+            }
+        })
+    }
     return new Response()
 };
