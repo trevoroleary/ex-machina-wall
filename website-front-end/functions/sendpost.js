@@ -9,6 +9,7 @@
  */
 
 export function onRequest(context) {
+    console.log(context);
     fetch('https://ntfy.trevoroleary.com/x',{
         method: "POST",
         body: context.request.body,
@@ -16,5 +17,5 @@ export function onRequest(context) {
             "Authorization": `Bearer ${context.env.NTFY_TOKEN}`
         }
     })
-    return new Response("HELLO!")
+    return new Response()
 };
