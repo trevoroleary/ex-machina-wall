@@ -16,6 +16,7 @@ export function onRequest(context) {
             "Authorization": `Bearer ${context.env.NTFY_TOKEN}`
         }
     })
-    console.log(JSON.stringify(context.request.headers))
+    console.log(context.request.headers)
+    console.log(context.request.headers.origin)
     return new Response("HELLO!")
 };
