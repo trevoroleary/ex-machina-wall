@@ -20,5 +20,20 @@ export function onRequest(context) {
     console.log(keys) // ['alpha', 'beta'] 
     var keys = Object.keys(context.request);
     console.log(keys) // ['alpha', 'beta'] 
+    var keys = Object.keys(context.functionPath);
+    console.log(keys) // ['alpha', 'beta'] 
+    var keys = Object.keys(context.next);
+    console.log(keys) // ['alpha', 'beta'] 
+    var keys = Object.keys(context.params);
+    console.log(keys) // ['alpha', 'beta'] 
+    var keys = Object.keys(context.data);
+    console.log(keys) // ['alpha', 'beta'] 
+    var keys = Object.keys(context.env);
+    console.log(keys) // ['alpha', 'beta'] 
+    var keys = Object.keys(context.waitUntil);
+    console.log(keys) // ['alpha', 'beta'] 
+    var keys = Object.keys(context.passThroughOnException);
+    console.log(keys) // ['alpha', 'beta'] 
+
     return new Response("HELLO!")
 };
