@@ -8,8 +8,8 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-export function onRequest(context) {
-    if (context.request.headers.get("origin") === "https://ex.trevoroleary.com")
+export function onRequest(context) {    
+    if (context.request.headers.get("origin") === "https://ex.trevoroleary.com") {
         fetch('https://ntfy.trevoroleary.com/x',{
             method: "POST",
             body: context.request.body,
@@ -17,8 +17,6 @@ export function onRequest(context) {
                 "Authorization": `Bearer ${context.env.NTFY_TOKEN}`
             }
         })
-    else {
-        throw new UnauthorizedException("Forbidden (403)");
     }
     return new Response();
 };
