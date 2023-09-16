@@ -20,5 +20,5 @@ export function onRequest(context) {
             }
         })
     }
-    return new Response();
+    return new Response(false);
 };
