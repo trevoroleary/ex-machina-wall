@@ -89,7 +89,7 @@ class Transmitter:
             # print(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
             pass
         else:
-            # print(f"Error: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
+            # self.logger.error(f"Error: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
             pass
 
     def power_down(self):

@@ -20,7 +20,8 @@ class Frame:
 class Frames:
     def __init__(self, frames: List[Frame]):
         self.frames = frames
-        self.sum_frame = Frame(pixel_array=self.get_sum_frame())
+        self.frame = Frame(pixel_array=self.get_sum_frame())
+        self.pixel_array = self.frame.pixel_array
     
     def get_sum_frame(self) -> np.array:
         sum_frame = None
@@ -33,4 +34,4 @@ class Frames:
         # return np.clip((sum_frame).astype(int), 0, 255)
 
     def get_string_data(self) -> list:
-        return self.sum_frame._get_string_data()
+        return self.sum_frame.get_string_data()

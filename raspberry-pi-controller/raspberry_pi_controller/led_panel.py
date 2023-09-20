@@ -1,7 +1,7 @@
 
 from raspberry_pi_controller.transmitter import LEDPacket, Transmitter
 from raspberry_pi_controller.image_handling.image_handler import ImageHandler
-from raspberry_pi_controller.effects import AudioEffect, TwoColorRandom, ImageEffect
+from raspberry_pi_controller.effects import AudioEffect, TwoColorRandom, ImageEffect, AudioEffect2
 from raspberry_pi_controller.ntfy_listener import NTFYListener
 from raspberry_pi_controller.frame import Frames, Frame
 
@@ -19,9 +19,13 @@ class Panel:
         self.effects_list = [
             ImageEffect(),
             TwoColorRandom(),
+            # AudioEffect2()
             # AudioEffect()
         ]
-        self.audio_effect = AudioEffect()
+        self.modifiers_list = [
+            AudioEffect2()
+        ]
+        # self.audio_effect = AudioEffect()
         self.accepted_commands = {
             "SET_ARDUINO_PGAIN": self.set_arduino_p_gain
         }
@@ -38,7 +42,7 @@ class Panel:
         for command in commands:
 
             # Iterate through each effect we have and check if they listen to that command
-            for effect in self.effects_list:
+            for effect in self.effects_list + self.modifiers_list:
                 for accepted_command in effect.accepted_commands:
                     if accepted_command in command:
                         # If an effect listens to one of those commands pass it on in the relevant function
@@ -49,9 +53,9 @@ class Panel:
                 if accepted_command in command:
                     self.accepted_commands[accepted_command](command)
             
-            for accepted_command in self.audio_effect.accepted_commands:
-                if accepted_command in command:
-                    self.audio_effect.accepted_commands[accepted_command](command)
+            # for accepted_command in self.audio_effect.accepted_commands:
+            #     if accepted_command in command:
+            #         self.audio_effect.accepted_commands[accepted_command](command)
 
     def set_arduino_p_gain(self, command: str):
         """
@@ -73,13 +77,12 @@ class Panel:
         while True:
             start_time = perf_counter()
             self.handle_commands()
-            frames = Frames(frames=[effect.get_frame() for effect in self.effects_list])
-            
-            # Add the Audio Modifier
-            frame = self.audio_effect.get_frame_adjust(current_frame=frames.sum_frame.pixel_array)
+            frame = Frames(frames=[effect.get_frame() for effect in self.effects_list])
+            for modifier in self.modifiers_list:
+                frame = modifier.get_frame(current_frame=frame.pixel_array)
             string_data = frame.get_string_data()
             end_time = perf_counter()
-            self.logger.debug(f"Frame Time: {end_time - start_time:.4f}s")
+            # self.logger.debug(f"Frame Time: {end_time - start_time:.4f}s")
             self.write(string_data)
             sleep(0.01)
                 

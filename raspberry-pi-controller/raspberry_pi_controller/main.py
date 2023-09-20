@@ -1,8 +1,12 @@
-from raspberry_pi_controller.led_panel import Panel
 from traceback import print_exc
 import logging
+import sys
+import os
 
-# logging.basicConfig(level=logging.DEBUG, format="[%(module)s] %(message)s")
+sys.path.append(os.path.abspath('/home/pi/repos/ex-machina-wall/raspberry-pi-controller/'))
+from raspberry_pi_controller.led_panel import Panel
+
+logging.basicConfig(level=logging.DEBUG, format="[%(module)s] %(message)s")
 
 def main():
     logging.info(f"Starting Program..")

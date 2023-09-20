@@ -37,7 +37,7 @@ class AudioListener:
         while self.running:
             start_time = perf_counter()
             fft = self.get_fft_data()
-            sense_range = fft[1:10]
+            sense_range = sum(fft)
             self.moving_window[self.current_index] = sense_range.max()
             self.current_index = (self.current_index + 1) % self.MOVING_WINDOW_SIZE
             # print(f"FFT Duration: {perf_counter() - start_time:.2f}")
