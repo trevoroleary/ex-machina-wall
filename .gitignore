@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+# node_modules/
 # Distribution / packaging
 .Python
 build/
@@ -133,3 +133,53 @@ dmypy.json
 .DS_Store
 .idea/
 .vscode/
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules/
+*/node_modules
+website-front-end/.pnp
+website-front-end/.pnp.js
+
+# testing
+website-front-end/coverage
+
+# production
+website-front-end/build
+
+# misc
+website-front-end/.DS_Store
+website-front-end/.env.local
+website-front-end/.env.development.local
+website-front-end/.env.test.local
+website-front-end/.env.production.local
+
+website-front-end/npm-debug.log*
+website-front-end/yarn-debug.log*
+website-front-end/yarn-error.log*
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+# /node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
