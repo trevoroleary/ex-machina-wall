@@ -55,25 +55,7 @@ function App() {
         </div>
         
         <div className='max-w-sm w-full'>
-          <p className='pb-3'>Primary Color</p>
-          <div className="flex flex-row mx-auto w-min">
-            <div className="flex-1">
-            <Fragment>
-              <Wheel color={primaryHSVA} onChange={handlePrimaryColorChange}/>
-            </Fragment>
-            </div>
-            <div>
-            <Slider
-              defaultValue={100} step={1} min={0} max={100} valueLabelDisplay='auto' orientation="vertical"
-              name="SET_PRIMARY_BRIGHTNESS"
-              onChange={handleSliderChange}
-            ></Slider>
-            </div>
-          </div>
-        </div>
-        
-        <div className='max-w-sm w-full'>
-          <p className='pb-3 pt-4'>Secondary Color</p>
+          <p className='pb-3 pt-4'>React Color</p>
           <div className="flex flex-row w-min mx-auto">
             <div className="flex-1">
               <Fragment>
@@ -84,6 +66,24 @@ function App() {
             <Slider 
               defaultValue={100} step={1} min={0} max={100} valueLabelDisplay='auto' orientation="vertical"
               name="SET_SECONDARY_BRIGHTNESS"
+              onChange={handleSliderChange}
+            ></Slider>
+            </div>
+          </div>
+        </div>
+
+        <div className='max-w-sm w-full'>
+          <p className='pb-3'>Backround Color</p>
+          <div className="flex flex-row mx-auto w-min">
+            <div className="flex-1">
+            <Fragment>
+              <Wheel color={primaryHSVA} onChange={handlePrimaryColorChange}/>
+            </Fragment>
+            </div>
+            <div>
+            <Slider
+              defaultValue={100} step={1} min={0} max={100} valueLabelDisplay='auto' orientation="vertical"
+              name="SET_PRIMARY_BRIGHTNESS"
               onChange={handleSliderChange}
             ></Slider>
             </div>
