@@ -133,3 +133,28 @@ dmypy.json
 .DS_Store
 .idea/
 .vscode/
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+# website-front-end/node_modules
+website-front-end/.pnp
+website-front-end/.pnp.js
+
+# testing
+website-front-end/coverage
+
+# production
+website-front-end/build
+
+# misc
+website-front-end/.DS_Store
+website-front-end/.env.local
+website-front-end/.env.development.local
+website-front-end/.env.test.local
+website-front-end/.env.production.local
+
+website-front-end/npm-debug.log*
+website-front-end/yarn-debug.log*
+website-front-end/yarn-error.log*
