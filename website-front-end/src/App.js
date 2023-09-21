@@ -151,7 +151,7 @@ function App() {
             <div>
               <Slider 
                 defaultValue={100} step={1} min={0} max={100} valueLabelDisplay='auto' orientation="vertical"
-                id="SET_IMAGE_BRIGHTNESS"
+                name="SET_IMAGE_BRIGHTNESS"
                 onChange={handleSliderChange}
               ></Slider>
             </div>
