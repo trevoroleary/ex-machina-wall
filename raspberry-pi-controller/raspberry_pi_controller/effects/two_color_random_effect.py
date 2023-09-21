@@ -15,7 +15,7 @@ class TwoColorRandom(Effect):
             "SET_PRIMARY_BRIGHTNESS": self.set_primary_brightness,
             "SET_SECONDARY_BRIGHTNESS": self.set_secondary_brightness
         }
-        self.primary_color = (0, 0, 0)
+        self.primary_color = (0, 0, 20)
         self.secondary_color = (0, 0, 0)
         self.primary_brightness = 100
         self.secondary_brightness = 100

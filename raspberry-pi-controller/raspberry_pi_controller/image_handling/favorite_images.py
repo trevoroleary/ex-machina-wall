@@ -11,5 +11,6 @@ FAVORITES = [
     "https://i.gifer.com/embedded/download/Vt1U.gif",
     "https://i.gifer.com/embedded/download/YAHA.gif",
     "https://i.gifer.com/embedded/download/fxdJ.gif",
-    "https://i.gifer.com/embedded/download/SGNK.gif" # red blue flower
+    "https://i.gifer.com/embedded/download/SGNK.gif", # red blue flower
+    "https://i.gifer.com/embedded/download/7IgE.gif"
 ]

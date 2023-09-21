@@ -12,7 +12,7 @@ import logging
 
 class ImageEffect(Effect):
     _TEMP_STORAGE = r'/home/pi/repos/ex-machina-wall/raspberry-pi-controller/raspberry_pi_controller/image_handling/downloads'
-    MAX_TIME_ON_IMAGE = 2*60
+    MAX_TIME_ON_IMAGE = 7
     def __init__(self) -> None:
         super().__init__()
         self.logger = logging.getLogger("ImageEffect")
@@ -85,20 +85,7 @@ class ImageEffect(Effect):
     def set_next_image(self):
         self.image_index = (self.image_index + 1) % len(FAVORITES)
         image_url = FAVORITES[self.image_index]
-        if image_url in self._saved_favourite_images:
-            self.last_image_change_time = perf_counter()
-            self.current_image = self._saved_favourite_images[image_url]
-            if self.current_image.is_animated:
-                self.n_frames = self.current_image.n_frames
-                self.image_is_animated = True
-                self.current_frame = 1
-            else:
-                self.n_frames = None
-                self.image_is_animated = False
-                self.current_frame = None
-        else:
-            self._handle_image_url(image_url)
-            self._saved_favourite_images[image_url] = self.current_image
+        self._handle_image_url(image_url)
 
     def get_frame(self) -> Frame:
         """

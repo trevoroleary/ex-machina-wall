@@ -1,5 +1,6 @@
 from raspberry_pi_controller.constants import WIDTH, HEIGHT, complement
 from raspberry_pi_controller.frame import Frame, Frames
+from raspberry_pi_controller.constants import complement, convert_incoming_color
 from raspberry_pi_controller.audio_reactor.stream_analyzer import Stream_Analyzer
 from time import perf_counter
 import numpy as np
@@ -7,48 +8,108 @@ import logging
 from math import sqrt
 
 class AudioEffect2:
-    PEAK_AMPLITUDE = 200000
+    PEAK_AMPLITUDE = 170000
     PEAK_BASS_AMPLITUDE = 300000
 
     def __init__(self):
         self.logger = logging.getLogger("AudioEffect2")
         self.accepted_commands = {
-            "ENABLE_HF_REACT": self.set_hf_react_state,
-            "ENABLE_LF_REACT": self.set_lf_react_state,
+            "SET_HIGH_FREQUENCY_REACT_STATE": self.set_frequency_react_state,
+            "SET_LOW_FREQUENCY_REACT_STATE": self.set_frequency_react_state,
+            "SET_HIGH_FREQUENCY_THRESHOLD": self.set_freq_threshold,
+            "SET_LOW_FREQUENCY_THRESHOLD": self.set_freq_threshold,
+            # "SET_PRIMARY_COLOR": self.set_color,
+            "SET_SECONDARY_COLOR": self.set_color,
+            "SET_SECONDARY_BRIGHTNESS": self.set_brightness
         }
         self.np_frame = np.array([[(0, 0, 0) for _ in range(WIDTH)] for _ in range(HEIGHT)])
         self.stream_analyzer = Stream_Analyzer()
-        self.high_color = (0, 0, 255)
-        self.low_color = (255, 0, 0)
-        self.hf_react_state = False
-        self.lf_react_state = False
+        
+        self.secondary_color = (0, 0, 255)
+        self.brightness = 100
+        self.primary_color = (255, 0, 0)
 
-    def set_hf_react_state(self, command: str):
-        try:
-            state = command.split("-")[1]
-            if state == "1":
-                self.logger.info(f"Enabling HF Reacting: {state}")
-            else:
-                self.logger.info(f"Disabling HF React: {state}")
-            self.hf_react_state = state == "1"
-        except Exception as e:
-            self.logger.error(e)
-            self.logger.info("Disabling HF React")
-            self.hf_react_state = False
+        self.high_frequency_react_state = True
+        self.low_frequency_react_state = True
+        self.high_frequency_threshold = 170000
+        self.low_frequency_threshold = 300000
 
+    @property
+    def primary_color_scaled(self) -> tuple:
+        scaled = (
+            int(self.primary_color[0]*self.brightness/100), 
+            int(self.primary_color[1]*self.brightness/100),
+            int(self.primary_color[2]*self.brightness/100)
+            )
+        return scaled
     
-    def set_lf_react_state(self, command: str):
+    @property
+    def secondary_color_scaled(self) -> tuple:
+        scaled = (
+            int(self.secondary_color[0]*self.brightness/100), 
+            int(self.secondary_color[1]*self.brightness/100),
+            int(self.secondary_color[2]*self.brightness/100)
+            )
+        return scaled
+
+    """ Incoming command Handlers """
+
+    def set_freq_threshold(self, command: str):
+        variable_mapping = {
+            "SET_HIGH_FREQUENCY_THRESHOLD": "high_frequency_threshold",
+            "SET_LOW_FREQUENCY_THRESHOLD": "low_frequency_threshold"
+        }
         try:
-            state = command.split("-")[1]
-            if state == "1":
-                self.logger.info(f"Enabling LF Reacting: {state}")
-            else:
-                self.logger.info(f"Disabling LF React: {state}")
-            self.lf_react_state = state == "1"
+            thresh_type, value = command.split("-")
+            value = int(value)
+            setattr(self, variable_mapping[thresh_type], value)
+            self.logger.info(f"Set {variable_mapping[thresh_type]} to {value}")
         except Exception as e:
             self.logger.error(e)
-            self.logger.info("Disabling LF React")
-            self.lf_react_state = False
+            self.high_frequency_threshold = 170000
+            self.low_frequency_threshold = 300000
+
+    def set_brightness(self, command: str):
+        try:
+            split_command = command.split("-")
+            self.brightness = int(split_command[1])
+            self.logger.info(f"React Brightness Set: {self.brightness}")
+        except Exception as e:
+            self.logger.error(e)
+            self.brightness = 100
+
+    def set_frequency_react_state(self, command: str):
+        variable_mapping = {
+            "SET_HIGH_FREQUENCY_REACT_STATE": "high_frequency_react_state",
+            "SET_LOW_FREQUENCY_REACT_STATE": "low_frequency_react_state"
+        }
+        try:
+            thresh_type, state = command.split("-")
+            state = state == "ON"
+            setattr(self, variable_mapping[thresh_type], state)
+            self.logger.info(f"Set {variable_mapping[thresh_type]} to {state}")
+        except Exception as e:
+            self.logger.error(e)
+            self.high_frequency_react_state = False
+            self.low_frequency_react_state = False
+
+    def set_color(self, command: str):
+        variable_mapping = {
+            "SET_PRIMARY_COLOR": "primary_color",
+            "SET_SECONDARY_COLOR": "primary_color"
+        }
+        try:
+            command, r, g, b = command.split('-')
+            r, g, b = convert_incoming_color(r, g, b)
+            setattr(self, variable_mapping[command], (r, g, b))
+            self.logger.info(f"{variable_mapping[command]}: {(r, g, b)}")
+        except Exception as e:
+            self.logger.error(e)
+            self.secondary_color = (0, 0, 255)
+            self.primary_color = (255, 0, 0)
+        
+        # May want to remove this
+        self.secondary_color = complement(*self.primary_color)
 
     def get_frame(self, current_frame: np.array = None) -> Frame:
         current_frame = current_frame if current_frame is not None else np.array([[(0, 0, 0) for _ in range(WIDTH)] for _ in range(HEIGHT)])
@@ -62,13 +123,14 @@ class AudioEffect2:
         return Frame(current_frame)
     
     def get_perimeter_pulse(self, current_frame, amplitudes) -> np.array:
-        if not self.hf_react_state:
+        if not self.high_frequency_react_state:
             return current_frame
+        
         max_height = 7
         middle_point_x = 8
         for y in range(HEIGHT):
             for x in range(WIDTH):
-                frame_color = self.high_color
+                frame_color = self.secondary_color_scaled
 
                 # We are in the top half need top down section
                 if y <= max_height:  
@@ -76,7 +138,7 @@ class AudioEffect2:
                         amplitude = amplitudes[-x]
                     else:
                         amplitude = amplitudes[int(-middle_point_x + (-middle_point_x + x))]  
-                    height = round(min(amplitude/self.PEAK_AMPLITUDE, 1) * max_height + 0.3)
+                    height = round(min(amplitude/self.high_frequency_threshold, 1) * max_height + 0.5)
                     if y < height:
                         current_frame[y][x] = frame_color
                 # We are on the bottom half section
@@ -85,7 +147,7 @@ class AudioEffect2:
                         amplitude = amplitudes[-x]
                     else:
                         amplitude = amplitudes[int(-middle_point_x + (-middle_point_x + x))]
-                    height = round(min(amplitude/self.PEAK_AMPLITUDE, 1) * max_height + 0.3)
+                    height = round(min(amplitude/self.high_frequency_threshold, 1) * max_height + 0.5)
                     if (HEIGHT - y - 1) < height:
                         current_frame[y][x] = frame_color
 
@@ -93,12 +155,12 @@ class AudioEffect2:
         return current_frame
 
     def add_bass_pulse(self, current_frame, amplitudes):
-        if not self.lf_react_state:
+        if not self.low_frequency_react_state:
             return current_frame
         max_height = 4
 
         amplitude = sum(amplitudes[:3])/len(amplitudes[:3])
-        target_radius = round(min(amplitude/self.PEAK_BASS_AMPLITUDE, 1) * max_height)
+        target_radius = round(min(amplitude/self.low_frequency_threshold, 1) * max_height)
         
         # Start drawing the circles
         y_offset = 6
@@ -107,11 +169,11 @@ class AudioEffect2:
             _y = y - y_offset
             for x in range(WIDTH):
                 _x = x - x_offset
-                frame_color = self.low_color
+                frame_color = self.primary_color_scaled
                 # frame_color = current_frame[y][x]
                 # _x and _y are the corrected x, y so that we iterate around the center of the wall
                 # Calculate the distance the current pixel we're setting is from the center of the screen
-                distance = sqrt(abs(_x*2) + _y**2)
+                distance = sqrt(abs(_x*2.3) + _y**2)
                 if distance < target_radius:
                     # Draw the color in that location
                     current_frame[y][x] = frame_color

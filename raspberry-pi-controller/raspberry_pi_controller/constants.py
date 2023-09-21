@@ -31,6 +31,11 @@ def complement(r, g, b):
     k = hilo(r, g, b)
     return tuple(k - u for u in (r, g, b))
 
+def convert_incoming_color(r, g, b):
+    r = int(1.1*int(r))
+    g = int(1.1*int(g))
+    b = int(1.1*int(b))
+    return r, g, b
 
 class LoopBuffer:
     def __init__(self, size, default_value = 0):
