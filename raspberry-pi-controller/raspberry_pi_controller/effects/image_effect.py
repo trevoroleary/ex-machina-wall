@@ -12,7 +12,7 @@ import logging
 
 class ImageEffect(Effect):
     _TEMP_STORAGE = r'/home/pi/repos/ex-machina-wall/raspberry-pi-controller/raspberry_pi_controller/image_handling/downloads'
-    MAX_TIME_ON_IMAGE = 7
+    MAX_TIME_ON_IMAGE = 120
     def __init__(self) -> None:
         super().__init__()
         self.logger = logging.getLogger("ImageEffect")
@@ -48,9 +48,9 @@ class ImageEffect(Effect):
         try:
             brightness = int(command.split("-")[1])
             self.brightness = brightness
-            print(f"Set Image Brightness {brightness}")
+            self.logger.debug(f"Set Image Brightness {brightness}")
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             self.brightness = 100
             pass
 

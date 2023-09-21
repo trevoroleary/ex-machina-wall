@@ -3,6 +3,7 @@ import threading
 import time
 import queue
 import json
+import logging
 
 
 class NTFYListener:
@@ -10,6 +11,7 @@ class NTFYListener:
     SERVER = "http://45-56-95-50.ip.linodeusercontent.com/x/json"
 
     def __init__(self):
+        self.logger = logging.getLogger("NTFYListener")
         self.queue = queue.Queue()
         self._stop_thread = False
         self.thread = threading.Thread(target=self._add_to_queue_periodically)
@@ -28,6 +30,7 @@ class NTFYListener:
                     message = json.loads(str(line)[2:-1])
                     if message['event'] == "message":
                         self.queue.put(message['message'])
+                        # self.logger.debug(message)
         except StopIteration:
             pass
 

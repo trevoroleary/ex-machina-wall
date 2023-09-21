@@ -83,7 +83,7 @@ class Transmitter:
             
         except TimeoutError:
             print("Timeout waiting for transmission to complete.")
-            time.sleep(10)
+            time.sleep(4)
             return
         if self.radio.get_retries() == 0:
             # print(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
