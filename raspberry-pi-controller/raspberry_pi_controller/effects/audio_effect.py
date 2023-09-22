@@ -5,14 +5,14 @@ import numpy as np
 from math import sqrt
 from raspberry_pi_controller.audio_listener import AudioListener
 from raspberry_pi_controller.constants import LoopBuffer
-import logging
+from raspberry_pi_controller.effects.abstract_effect import Effect
 
 
-class AudioEffect:
+class AudioEffect(Effect):
     MIN_REACT_THRESHOLD = 11.3
 
     def __init__(self):
-        self.logger = logging.getLogger("AudioEffect")
+        super().__init__()
         self.accepted_commands = {
             "SET_SECONDARY_COLOR": self.set_secondary_color,
             "SET_SECONDARY_BRIGHTNESS": self.set_secondary_brightness
@@ -39,18 +39,18 @@ class AudioEffect:
             g = int(split_command[2])
             b = int(split_command[3])
             self.secondary_color = (r, g, b)
-            print(f"Secondary Color Set: {self.secondary_color}")
+            self.logger.debug(f"Secondary Color Set: {self.secondary_color}")
         except Exception as e:
-            print(e)
+            self.logger.debug(e)
             self.secondary_color = (0, 0, 0)
 
     def set_secondary_brightness(self, command: str):
         try:
             split_command = command.split("-")
             self.secondary_brightness = int(split_command[1])
-            print(f"Audio React Brightness Set: {self.secondary_brightness}")
+            self.logger.debug(f"Audio React Brightness Set: {self.secondary_brightness}")
         except Exception as e:
-            print(e)
+            self.logger.debug(e)
             self.primary_brightness = 100
 
     def deal_with_dynamic_threshold(self):

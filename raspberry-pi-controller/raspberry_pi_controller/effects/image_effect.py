@@ -7,15 +7,15 @@ import numpy as np
 from PIL import Image, ImageEnhance
 from time import perf_counter
 from raspberry_pi_controller.image_handling.favorite_images import FAVORITES
-import logging 
 
 
 class ImageEffect(Effect):
     _TEMP_STORAGE = r'/home/pi/repos/ex-machina-wall/raspberry-pi-controller/raspberry_pi_controller/image_handling/downloads'
     MAX_TIME_ON_IMAGE = 120
+
+    
     def __init__(self) -> None:
         super().__init__()
-        self.logger = logging.getLogger("ImageEffect")
         self.accepted_commands = {
             "SET_IMAGE_URL": self.set_image,
             "SET_FRAME_TIME": self.set_frame_time,
@@ -39,9 +39,9 @@ class ImageEffect(Effect):
         try:
             frame_time = float(command.split('-')[1])
             self.frame_time = frame_time
-            print(f"Frame time set {self.frame_time}")
+            self.logger.debug(f"Frame time set {self.frame_time}")
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             self.frame_time = 0.1
 
     def set_brightness(self, command: str):
@@ -106,7 +106,7 @@ class ImageEffect(Effect):
             current_time = perf_counter()
             if current_time - self.previous_call_time > self.frame_time:
                 self.current_frame = ((self.current_frame + 1) % self.n_frames)
-                # print(f"Updating current frame to {self.current_frame} | n_frames: {self.n_frames}")
+                # self.logger.debug(f"Updating current frame to {self.current_frame} | n_frames: {self.n_frames}")
                 self.previous_call_time = current_time
                 
                 # For some reason 0 does not work so just make sure we don't pick 0th frame

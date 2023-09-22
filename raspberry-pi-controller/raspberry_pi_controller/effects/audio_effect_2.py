@@ -1,18 +1,18 @@
 from raspberry_pi_controller.constants import WIDTH, HEIGHT, complement
-from raspberry_pi_controller.frame import Frame, Frames
+from raspberry_pi_controller.frame import Frame
 from raspberry_pi_controller.constants import complement, convert_incoming_color
 from raspberry_pi_controller.audio_reactor.stream_analyzer import Stream_Analyzer
-from time import perf_counter
+from raspberry_pi_controller.effects.abstract_effect import Effect
 import numpy as np
-import logging
 from math import sqrt
 
-class AudioEffect2:
+
+class AudioEffect2(Effect):
     PEAK_AMPLITUDE = 170000
     PEAK_BASS_AMPLITUDE = 300000
 
     def __init__(self):
-        self.logger = logging.getLogger("AudioEffect2")
+        super().__init__()
         self.accepted_commands = {
             "SET_HIGH_FREQUENCY_REACT_STATE": self.set_frequency_react_state,
             "SET_LOW_FREQUENCY_REACT_STATE": self.set_frequency_react_state,

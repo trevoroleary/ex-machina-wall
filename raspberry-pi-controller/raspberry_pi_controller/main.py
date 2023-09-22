@@ -6,8 +6,12 @@ import os
 sys.path.append(os.path.abspath('/home/pi/repos/ex-machina-wall/raspberry-pi-controller/'))
 from raspberry_pi_controller.led_panel import Panel
 
-logging.basicConfig(level=logging.DEBUG, format="[%(asctime)s]-[%(module)s] | %(message)s")
 
+logging.basicConfig(filename='/home/pi/repos/ex-machina-wall/raspberry-pi-controller/log.txt',
+                    filemode='a',
+                    format='%(asctime)s-[%(name)s] [%(levelname)s] | %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
 def main():
     logging.info(f"Starting Program..")
     panel = Panel()

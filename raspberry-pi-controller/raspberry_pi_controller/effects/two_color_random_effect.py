@@ -42,18 +42,18 @@ class TwoColorRandom(Effect):
         try:
             split_command = command.split("-")
             self.primary_brightness = int(split_command[1])
-            print(f"Primary Brightness Set: {self.primary_brightness}")
+            self.logger.debug(f"Primary Brightness Set: {self.primary_brightness}")
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             self.primary_brightness = 100
 
     def set_secondary_brightness(self, command: str):
         try:
             split_command = command.split("-")
             self.secondary_brightness = int(split_command[1])
-            print(f"Secondary Brightness Set: {self.secondary_brightness}")
+            self.logger.debug(f"Secondary Brightness Set: {self.secondary_brightness}")
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             self.primary_brightness = 100
 
     def set_primary_color(self, command: str):
@@ -63,9 +63,9 @@ class TwoColorRandom(Effect):
             g = int(split_command[2])
             b = int(split_command[3])
             self.primary_color = (r, g, b)
-            print(f"Primary Color Set: {self.primary_color}")
+            self.logger.debug(f"Primary Color Set: {self.primary_color}")
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             self.primary_color = (0, 0, 0)
     
     def set_secondary_color(self, command: str):
@@ -75,9 +75,9 @@ class TwoColorRandom(Effect):
             g = int(split_command[2])
             b = int(split_command[3])
             self.secondary_color = (r, g, b)
-            print(f"Secondary Color Set: {self.secondary_color}")
+            self.logger.debug(f"Secondary Color Set: {self.secondary_color}")
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             self.secondary_color = (0, 0, 0)
     
     def get_frame(self) -> Frame:

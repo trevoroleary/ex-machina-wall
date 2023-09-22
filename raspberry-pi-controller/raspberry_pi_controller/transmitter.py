@@ -22,11 +22,11 @@ class LEDPacket:
         string_format = "@" + "".join(["B" for _ in range(32)])
         
         led_rgb_list = list()
-        # print(f"Starting Number: {self.starting_number}")
-        # print(f"Ramp Rate: {self.ramp_rate}")
+        # self.logger.debug(f"Starting Number: {self.starting_number}")
+        # self.logger.debug(f"Ramp Rate: {self.ramp_rate}")
         for i, (r, g, b) in enumerate(self.led_rgbs):
             led_rgb_list += [r, g, b]
-            # print(f"LED #{i}   |   r: {r}, g: {g}, b: {b}")
+            # self.logger.debug(f"LED #{i}   |   r: {r}, g: {g}, b: {b}")
         args = [self.starting_number, self.ramp_rate] + led_rgb_list
         payload = struct.pack(string_format, *args)
         return payload
@@ -82,11 +82,11 @@ class Transmitter:
             self.radio.wait_until_sent()
             
         except TimeoutError:
-            print("Timeout waiting for transmission to complete.")
+            self.logger.error("Timeout waiting for transmission to complete.")
             time.sleep(4)
             return
         if self.radio.get_retries() == 0:
-            # print(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
+            # self.logger.debug(f"Success: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
             pass
         else:
             # self.logger.error(f"Error: lost={self.radio.get_packages_lost()}, retries={self.radio.get_retries()}")
