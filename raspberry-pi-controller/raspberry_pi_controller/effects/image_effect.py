@@ -26,7 +26,7 @@ class ImageEffect(Effect):
         self._saved_favourite_images = {}
         self.last_image_change_time = perf_counter()
         self.image_index = 0
-
+        self.previous_call_time = perf_counter()
         self.current_image: Image = None
         self.current_frame = None
         self.n_frames = None
@@ -91,8 +91,11 @@ class ImageEffect(Effect):
         """
         This is the main call that returns a frame of the GIF
         """
+        start_time = perf_counter()
         # If the current image is None, or in otherwords this effect is disabled, we return an empty frame
         if self.current_image is None:
+            end_time = perf_counter()
+            # self.logger.debug(f"Image Frame time duration: {start_time-end_time:.2f}s")
             return self.empty_frame
 
         # If we have been showing this image for too long cycle the image
@@ -123,6 +126,8 @@ class ImageEffect(Effect):
             frame = self.current_image.resize((WIDTH, HEIGHT))
         image_array = np.array(frame) * (self.brightness/100)
         frame = Frame(pixel_array=image_array)
+        end_time = perf_counter()
+        # self.logger.debug(f"Image Frame time duration: {start_time-end_time:.2f}s")
         return frame
 
     def _get_image_from_url(self, url: str) -> Image:

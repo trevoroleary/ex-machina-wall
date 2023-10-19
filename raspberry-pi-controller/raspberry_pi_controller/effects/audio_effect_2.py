@@ -5,7 +5,7 @@ from raspberry_pi_controller.audio_reactor.stream_analyzer import Stream_Analyze
 from raspberry_pi_controller.effects.abstract_effect import Effect
 import numpy as np
 from math import sqrt
-
+from time import perf_counter
 
 class AudioEffect2(Effect):
     PEAK_AMPLITUDE = 170000
@@ -112,6 +112,7 @@ class AudioEffect2(Effect):
         self.secondary_color = complement(*self.primary_color)
 
     def get_frame(self, current_frame: np.array = None) -> Frame:
+        start_time = perf_counter()
         current_frame = current_frame if current_frame is not None else np.array([[(0, 0, 0) for _ in range(WIDTH)] for _ in range(HEIGHT)])
 
         _, _, _, amplitudes = self.stream_analyzer.get_audio_features()
@@ -119,7 +120,8 @@ class AudioEffect2(Effect):
         current_frame = self.get_perimeter_pulse(current_frame, amplitudes)
 
         current_frame = self.add_bass_pulse(current_frame, amplitudes)
-
+        end_time = perf_counter()
+        # self.logger.debug(f"Audio frame generation duration: {end_time-start_time:.2f}s")
         return Frame(current_frame)
     
     def get_perimeter_pulse(self, current_frame, amplitudes) -> np.array:

@@ -1,18 +1,21 @@
 
-from raspberry_pi_controller.transmitter import LEDPacket, Transmitter
+from raspberry_pi_controller.websocket_transmitter import WebsocketTransmitter
 from raspberry_pi_controller.image_handling.image_handler import ImageHandler
 from raspberry_pi_controller.effects import AudioEffect, TwoColorRandom, ImageEffect, AudioEffect2
 from raspberry_pi_controller.ntfy_listener import NTFYListener
 from raspberry_pi_controller.frame import Frames, Frame
+from raspberry_pi_controller.constants import NUM_PIXELS
 
 from time import sleep, perf_counter
 import logging
+import struct
 
 class Panel:
     NUM_PIXELS = 73
+    TARGET_FRAME_TIME = 1/60
     def __init__(self):
         self.logger = logging.getLogger("Panel")
-        self.transmitter = Transmitter()
+        self.web_socket_transmitter = WebsocketTransmitter()
         self.ntfy_listener = NTFYListener()
         self.ntfy_listener.start_thread()
         self.image_handler = ImageHandler()
@@ -82,23 +85,22 @@ class Panel:
                 frame = modifier.get_frame(current_frame=frame.pixel_array)
             string_data = frame.get_string_data()
             end_time = perf_counter()
-            # self.logger.debug(f"Frame Time: {end_time - start_time:.4f}s")
-            self.write(string_data)
-            sleep(0.01)
-                
-    def write(self, color_list: list):
-        base_list = [(0, 0, 0) for i in range(10)]
-        for i in range(8):
-            index = i*10
-            for i in range(10):
-                if index+i < len(color_list):
-                    base_list[i] = color_list[index+i]
-
-            packet = LEDPacket(index, self.arduino_ramp_rate, base_list)
-            self.transmitter.send_packet(packet)
+            self.web_socket_transmitter.send(self.get_payload(string_data))
+            duration = end_time - start_time
+            # self.logger.debug(f"Frame Time: {duration:.4f}s")
+            if duration < self.TARGET_FRAME_TIME:
+                sleep(self.TARGET_FRAME_TIME - duration)
     
+    def get_payload(self, color_list) -> bytes:
+        string_format = "@" + "".join(["B" for _ in range((NUM_PIXELS*3) + 1)])
+
+        led_rgb_list = list()
+        for r, g, b in color_list:
+            led_rgb_list += [r, g, b]
+        args = [self.arduino_ramp_rate] + led_rgb_list
+        payload = struct.pack(string_format, *args)
+        return payload
+
     def power_down(self):
         self.logger.info("Attempting to power down")
-        self.transmitter.power_down()
-        self.logger.info("Transmitter powered down")
         self.ntfy_listener.stop_thread()

@@ -24,9 +24,9 @@ class Stream_Reader:
         FFT_window_size = None,
         verbose = False):
 
-        print("Available audio devices:")
-        device_dict = sd.query_devices()
-        print(device_dict)
+        # print("Available audio devices:")
+        # device_dict = sd.query_devices()
+        # print(device_dict)
 
         try:
             sd.check_input_settings(device=device, channels=1, dtype=np.float32, extra_settings=None, samplerate=rate)
@@ -87,13 +87,13 @@ class Stream_Reader:
 
         self.device_latency = device_dict[self.device]['default_low_input_latency']
 
-        print("\n##################################################################################################")
-        print("\nDefaulted to using first working mic, Running on mic %s with properties:" %str(self.device))
-        print(device_dict[self.device])
-        print('Which has a latency of %.2f ms' %(1000*self.device_latency))
-        print("\n##################################################################################################")
-        print('Recording audio at %d Hz\nUsing (non-overlapping) data-windows of %d samples (updating at %.2ffps)'
-            %(self.rate, self.update_window_n_frames, self.updates_per_second))
+        # print("\n##################################################################################################")
+        # print("\nDefaulted to using first working mic, Running on mic %s with properties:" %str(self.device))
+        # print(device_dict[self.device])
+        # print('Which has a latency of %.2f ms' %(1000*self.device_latency))
+        # print("\n##################################################################################################")
+        # print('Recording audio at %d Hz\nUsing (non-overlapping) data-windows of %d samples (updating at %.2ffps)'
+        #     %(self.rate, self.update_window_n_frames, self.updates_per_second))
 
     def non_blocking_stream_read(self, indata, frames, time_info, status):
         if self.verbose:
