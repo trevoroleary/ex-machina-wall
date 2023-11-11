@@ -1,20 +1,23 @@
 import logging
 import requests
 from threading import Thread
+from decouple import config
+
 
 def _send_post_thread(data):
     requests.post(
-        "https://ntfy.trevoroleary.com/ex-logs", 
+        config("NTFY_LOGS_URL"),
         data=data,
         headers={
-            "Authorization": "Bearer tk_632ejha524dlfcgx7dnqnxb5in4sx"
+            "Authorization": f"Bearer {config('NTFY_BEARER_KEY')}"
         })
+
 
 class NTFYLogger(logging.Handler):
     def __init__(self):
         super().__init__()
         formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-        self.setFormatter(formatter)    
+        self.setFormatter(formatter)
 
     def emit(self, record):
         log_entry = self.format(record)
@@ -32,6 +35,7 @@ def main():
     for i in range(120):
         logger.error(i)
         time.sleep(1)
+
 
 if __name__ == "__main__":
     main()

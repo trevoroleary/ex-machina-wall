@@ -133,3 +133,7 @@ dmypy.json
 .DS_Store
 .idea/
 .vscode/
+*.whl
+log.txt
+*.out
+*.lock

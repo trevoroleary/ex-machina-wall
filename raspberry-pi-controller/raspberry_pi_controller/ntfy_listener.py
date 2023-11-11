@@ -4,11 +4,10 @@ import time
 import queue
 import json
 import logging
+from decouple import config
 
 
 class NTFYListener:
-    BEARER_KEY = "tk_632ejha524dlfcgx7dnqnxb5in4sx"
-    SERVER = "http://45-56-95-50.ip.linodeusercontent.com/x/json"
 
     def __init__(self):
         self.logger = logging.getLogger("NTFYListener")
@@ -18,9 +17,9 @@ class NTFYListener:
 
     def _add_to_queue_periodically(self):
         resp = requests.get(
-            self.SERVER, 
-            stream=True, 
-            headers={"Authorization": f"Bearer {self.BEARER_KEY}"}
+            config("NTFY_SERVER"),
+            stream=True,
+            headers={"Authorization": f"Bearer {config('NTFY_BEARER_KEY')}"}
             )
         try:
             for line in resp.iter_lines():

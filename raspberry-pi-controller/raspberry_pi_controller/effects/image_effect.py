@@ -11,7 +11,7 @@ from raspberry_pi_controller.image_handling.favorite_images import FAVORITES
 
 class ImageEffect(Effect):
     _TEMP_STORAGE = r'/home/pi/repos/ex-machina-wall/raspberry-pi-controller/raspberry_pi_controller/image_handling/downloads'
-    MAX_TIME_ON_IMAGE = 120
+    MAX_TIME_ON_IMAGE = 60*60*5  # 120
 
     
     def __init__(self) -> None:
@@ -70,16 +70,19 @@ class ImageEffect(Effect):
         # If downloading the image from a url fails set the current image to None
         if not downloaded_image:
             return self.set_image("-")
-        
-        self.current_image = downloaded_image
-        if self.current_image.is_animated:
-            self.n_frames = self.current_image.n_frames
-            self.image_is_animated = True
-            self.current_frame = 1
-        else:
-            self.n_frames = None
-            self.image_is_animated = False
-            self.current_frame = None
+        try:
+            self.current_image = downloaded_image
+            if self.current_image.is_animated:
+                self.n_frames = self.current_image.n_frames
+                self.image_is_animated = True
+                self.current_frame = 1
+            else:
+                self.n_frames = None
+                self.image_is_animated = False
+                self.current_frame = None
+        except Exception as e:
+            self.logger.error(f"Error reading image information: {e}")
+            return self.set_image("-")
         self.logger.info("New Image Set!")
         
     def set_next_image(self):
@@ -102,6 +105,10 @@ class ImageEffect(Effect):
         if perf_counter() - self.last_image_change_time > self.MAX_TIME_ON_IMAGE:
             self.logger.debug(f"Cyling GIF Automatically")
             self.set_next_image()
+            # Its possible setting the next image can actually fail because of a download issue
+            # Check if we failed to download, and end the image cycling..
+            if self.current_image is None:
+                return self.empty_frame
 
         # If the image is animated we will be keeping in mind frame times and updating accordingly
         if self.image_is_animated:

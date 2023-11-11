@@ -1,10 +1,10 @@
 import websockets
 import asyncio
 from threading import Thread, Lock
+from time import sleep
 import logging
-from raspberry_pi_controller.constants import NUM_PIXELS
+from decouple import config
 
-uri = "ws://10.41.222.122/strip_data"
 
 class WebsocketTransmitter:
     def __init__(self):
@@ -19,11 +19,13 @@ class WebsocketTransmitter:
             self.message = message
 
     def websocket_thread(self):
-        asyncio.run(self._websocket_thread())
-        self.logger.debug(f"End of websocket thread")
+        while True:
+            asyncio.run(self._websocket_thread())
+            self.logger.debug(f"End of websocket thread")
+            sleep(1)
 
     async def _websocket_thread(self):
-        async with websockets.connect(uri=uri) as websocket:
+        async with websockets.connect(uri=config("WALL_SOCKET_URI")) as websocket:
             logging.getLogger(self.__class__.__name__).info(f"Started new websocket")
             while True:
                 try:

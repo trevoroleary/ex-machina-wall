@@ -2,8 +2,15 @@ from traceback import print_exc
 import logging
 import sys
 import os
+from logtail import LogtailHandler
+from decouple import config
 
-sys.path.append(os.path.abspath('/home/pi/repos/ex-machina-wall/raspberry-pi-controller/'))
+
+sys.path.append(
+    os.path.abspath(
+        '/home/pi/repos/ex-machina-wall/raspberry-pi-controller/'
+    )
+)
 from raspberry_pi_controller.led_panel import Panel
 
 logging.basicConfig(
@@ -14,24 +21,27 @@ logging.basicConfig(
     level=logging.DEBUG
     )
 
-suppress_loggers = [
-	"websockets.client"
-    ]
+handler = LogtailHandler(source_token=config("LOGTAIL_TOKEN"))
+handler.setLevel(logging.DEBUG)
+logger = logging.getLogger("")
+logger.addHandler(handler)
+
+suppress_loggers = ["websockets.client", "urllib3.connectionpool"]
 
 for logger in suppress_loggers:
-    logging.getLogger(logger).propagate = False
+    logging.getLogger(logger).setLevel(logging.CRITICAL)  # propagate = False
 
-    
+
 def main():
-    logging.info(f"Starting Program..")
+    logging.info("Starting Program..")
     panel = Panel()
-    try:  
+    try:
         panel.run()
     except Exception as e:
         logging.error(e)
         print_exc()
         panel.power_down()
-        
+
 
 if __name__ == "__main__":
     main()
